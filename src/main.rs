@@ -1,7 +1,6 @@
 use bytes::BufMut;
 use futures_util::StreamExt;
 use warp::Filter;
-use warp::multipart::FormData;
 
 #[derive(Debug)]
 struct EncodeError;
@@ -59,34 +58,35 @@ fn webp_encode(img: image::DynamicImage) -> Option<Vec<u8>> {
 
 #[tokio::main]
 async fn main() {
-    let convert = warp::multipart::form().and_then(|mut form: FormData| async move {
-        while let Some(Ok(mut field)) = form.next().await {
-            if field.name() == "image" {
-                let mut img_bytes: Vec<u8> = Vec::new();
+    let convert =
+        warp::multipart::form().and_then(|mut form: warp::multipart::FormData| async move {
+            while let Some(Ok(mut field)) = form.next().await {
+                if field.name() == "image" {
+                    let mut img_bytes: Vec<u8> = Vec::new();
 
-                while let Some(Ok(content)) = field.data().await {
-                    img_bytes.put(content);
+                    while let Some(Ok(content)) = field.data().await {
+                        img_bytes.put(content);
+                    }
+
+                    if let Ok(img) = image::ImageReader::new(std::io::Cursor::new(img_bytes))
+                        .with_guessed_format()
+                        && let Ok(img) = img.decode()
+                    {
+                        return webp_encode(scale_to_fit(
+                            1072,
+                            1488,
+                            image::imageops::FilterType::CatmullRom,
+                            img,
+                        ))
+                        .ok_or(warp::reject::custom(EncodeError));
+                    }
+
+                    return Err(warp::reject::custom(DecodeError));
                 }
-
-                if let Ok(img) =
-                    image::ImageReader::new(std::io::Cursor::new(img_bytes)).with_guessed_format()
-                    && let Ok(img) = img.decode()
-                {
-                    return webp_encode(scale_to_fit(
-                        1072,
-                        1488,
-                        image::imageops::FilterType::CatmullRom,
-                        img,
-                    ))
-                    .ok_or(warp::reject::custom(EncodeError));
-                }
-
-                return Err(warp::reject::custom(DecodeError));
             }
-        }
 
-        Err(warp::reject::custom(NoInput))
-    });
+            Err(warp::reject::custom(NoInput))
+        });
 
     warp::serve(convert).run(([0, 0, 0, 0], 80)).await;
 }
