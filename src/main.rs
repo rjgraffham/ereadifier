@@ -1,5 +1,6 @@
 use bytes::BufMut;
 use futures_util::StreamExt;
+use serde::Serialize;
 use warp::Filter;
 
 #[derive(Debug)]
@@ -14,6 +15,12 @@ struct NoInput;
 impl warp::reject::Reject for EncodeError {}
 impl warp::reject::Reject for DecodeError {}
 impl warp::reject::Reject for NoInput {}
+
+#[derive(Serialize)]
+struct ErrorDetails {
+    code: u16,
+    message: String,
+}
 
 struct Config {
     dimensions: Option<(u32, u32)>,
@@ -325,7 +332,12 @@ async fn handle_errors(err: warp::Rejection) -> Result<impl warp::Reply, std::co
         message
     );
 
-    Ok::<warp::reply::WithStatus<&str>, _>(warp::reply::with_status(message, code))
+    let json = warp::reply::json(&ErrorDetails {
+        code: code.as_u16(),
+        message: message.into(),
+    });
+
+    Ok(warp::reply::with_status(json, code))
 }
 
 #[tokio::main]

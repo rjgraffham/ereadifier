@@ -358,13 +358,14 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "ereadifier"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "bytes",
  "chrono",
  "futures-util",
  "image",
  "regex",
+ "serde",
  "tokio",
  "warp",
  "webp",
@@ -1339,6 +1340,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9a8e94ea7f378bd32cbbd37198a4a91436180c5bb472411e48b5ec2e2124ae9e"
 dependencies = [
  "serde_core",
+ "serde_derive",
 ]
 
 [[package]]
