@@ -375,7 +375,9 @@ async fn main() {
         })
         .recover(handle_errors);
 
-    warp::serve(convert)
+    let health_check = warp::path("health").map(|| "OK");
+
+    warp::serve(health_check.or(convert))
         .bind(config.listen_on)
         .await
         .graceful(stop_signal())

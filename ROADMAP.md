@@ -2,7 +2,6 @@
 
 Improvements I want to make, in no particular order:
 
-* Add a health check endpoint (and move conversion to an explicit /convert endpoint)
 * Make presets data-driven to ease expanding the list later:
     - TOML file which defines the dimensions and a list of devices for each named preset
     - Server loads TOML file when parsing dimensions
