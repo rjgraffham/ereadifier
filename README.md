@@ -96,7 +96,7 @@ available (largest to smallest):
 * `aura`, `glo` - 768 x 1024
     * Kobo Aura (and 2nd Edition)
     * Kobo Glo
-* `nia`, `paperwhite`
+* `nia`, `paperwhite` - 758 x 1024
     * Kobo Nia
     * Kindle Paperwhite (5th and 6th Generation)
 * `kobo`, `kindle` - 600 x 800
