@@ -58,6 +58,51 @@ configuration options are available:
       hostname), and IPv6 addresses *must* be wrapped in `[`
       and `]`. Default is `0.0.0.0:80`.
 
+## Usage
+
+> [!WARNING]
+> This is not designed to be exposed to the public internet.
+> You should expose it only to your local machine, or ideally
+> only to Suwayomi, as it will process arbitrarily large
+> inputs and could thus put you ask risk of denial of
+> service attacks.
+
+I recommend deploying as a container using whatever method you
+prefer (command, Compose, quadlet) - however, as long as you
+have some way of running it with any environment variables you
+want, it should work just the same.
+
+Once deployed, configure Suwayomi to use it for **all** image
+processing, via **Settings → Downloads → Image download**
+**processing**, as shown below (change URL to match the hostname
+of the container where you have it deployed):
+
+![Example configuration in suwayomi](suwayomi-config.png)
+
+### Example: running directly with Docker
+
+```bash
+docker run -p 8080:80 --rm -d \
+    -e EREADIFIER_DIMENSIONS=clara \
+    -e EREADIFIER_ENCODE=smallest \
+    ghcr.io/rjgraffham/ereadifier:latest
+```
+
+### Example: running with Docker Compose
+
+```yaml
+services:
+  ereadifier:
+    image: ghcr.io/rjgraffham/ereadifier:latest
+    container_name: ereadifier
+    ports:
+      - "8080:80"
+    environment:
+      EREADIFIER_DIMENSIONS: clara
+      EREADIFIER_ENCODE: smallest
+    restart: unless-stopped
+```
+
 ## Why WebP?
 
 As this is built primarily for my own personal use, I can rely
