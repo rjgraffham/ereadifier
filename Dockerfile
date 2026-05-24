@@ -4,7 +4,7 @@ LABEL org.opencontainers.image.source=https://github.com/rjgraffham/ereadifier
 LABEL org.opencontainers.image.description="ereadifier container image"
 LABEL org.opencontainers.image.licenses=MIT
 
-RUN --mount=type=bind,target=/source git clone /source /work
+COPY . /work
 
 WORKDIR /work
 RUN cargo build --release
