@@ -56,125 +56,142 @@ impl std::fmt::Display for DoublePageStrategy {
     }
 }
 
+fn parse_dimensions<S>(dims: S) -> Option<(u32, u32)>
+where
+    S: AsRef<str>,
+{
+    let dims = dims.as_ref().trim().to_lowercase();
+
+    if dims == "scribe2025" {
+        // Kindle Scribe 3, Scribe Colorsoft
+        Some((1980, 2640))
+    } else if dims == "scribe" {
+        // Kindle Scribe, Scribe 2024
+        Some((1860, 2480))
+    } else if dims == "forma" || dims == "sage" {
+        // Kobo Forma, Sage
+        Some((1440, 1920))
+    } else if dims == "auraone" || dims == "ellipsa" {
+        // Kobo Aura One, Ellipsa (all variants)
+        Some((1404, 1872))
+    } else if dims == "libra"
+        || dims == "oasis2018"
+        || dims == "paperwhite2024"
+        || dims == "colorsoft"
+    {
+        // Kobo Libra (all variants)
+        // Kindle Colorsoft (incl. signature ed.), Oasis 2, Oasis 3, Paperwhite 6 (incl. signature ed.)
+        Some((1264, 1680))
+    } else if dims == "paperwhite2021" {
+        // Kindle Paperwhite 5 (incl. signature ed.)
+        Some((1236, 1648))
+    } else if dims == "aurah2o" || dims == "aurahd" {
+        // Kobo Aura H2O, Aura H2O Edition 2, Aura HD
+        Some((1080, 1440))
+    } else if dims == "clara"
+        || dims == "glohd"
+        || dims == "voyage"
+        || dims == "paperwhite2015"
+        || dims == "oasis"
+        || dims == "kindle2022"
+    {
+        // Kobo Clara (all variants), Glo HD
+        // Kindle 11, Kindle 2024, Oasis, Paperwhite 3, Paperwhite 4, Voyage
+        Some((1072, 1448))
+    } else if dims == "kindledx" {
+        // Kindle DX
+        Some((824, 1200))
+    } else if dims == "aura" || dims == "glo" {
+        // Kobo Aura, Aura Edition 2, Glo
+        Some((768, 1024))
+    } else if dims == "nia" || dims == "paperwhite" {
+        // Kobo Nia
+        // Kindle Paperwhite, Paperwhite 2
+        Some((758, 1024))
+    } else if dims == "kobo" || dims == "kindle" {
+        // Kobo Original, Mini, Touch, Touch 2.0, WiFi
+        // Kindle 1, 2, 4, 5, 7, 8, 10, Keyboard, Touch
+        Some((600, 800))
+    } else if dims.is_empty() {
+        None
+    } else {
+        // TODO: Try to parse a WxH dimension
+        let dims_regex =
+            regex::Regex::new(r"^([0-9]+)\s?x\s?([0-9]+)$").expect("regex should always be valid");
+        if let Some(caps) = dims_regex.captures(&dims) {
+            let (_, [width, height]) = caps.extract();
+            match (width.parse(), height.parse()) {
+                (Ok(w), Ok(h)) => Some((w, h)),
+                _ => None,
+            }
+        } else {
+            eprintln!(
+                "WARN: '{}' was not recognized as a valid WxH dimension string or preset",
+                dims
+            );
+            None
+        }
+    }
+}
+
+fn parse_encode_strategy<S>(strat: S) -> Option<EncodeStrategy>
+where
+    S: AsRef<str>,
+{
+    let strat = strat.as_ref().trim().to_lowercase();
+
+    if strat == "smallest" {
+        Some(EncodeStrategy::Smallest)
+    } else if strat == "lossy" {
+        Some(EncodeStrategy::Lossy)
+    } else if strat == "lossless" {
+        Some(EncodeStrategy::Lossless)
+    } else if strat.is_empty() {
+        None
+    } else {
+        eprintln!(
+            "WARN: '{}' was not recognized as a valid encode strategy",
+            strat
+        );
+        None
+    }
+}
+
+fn parse_double_page_strategy<S>(strat: S) -> Option<DoublePageStrategy>
+where
+    S: AsRef<str>,
+{
+    let strat = strat.as_ref().trim().to_lowercase();
+
+    if strat == "much_wider" {
+        Some(DoublePageStrategy::IfMuchWider)
+    } else if strat == "wider" {
+        Some(DoublePageStrategy::IfWider)
+    } else if strat == "ignore" {
+        Some(DoublePageStrategy::Ignore)
+    } else if strat.is_empty() {
+        None
+    } else {
+        eprintln!(
+            "WARN: '{}' was not recognized as a valid double-page strategy",
+            strat
+        );
+        None
+    }
+}
+
 fn load_config() -> Config {
     Config {
-        dimensions: std::env::var("EREADIFIER_DIMENSIONS").ok().and_then(|dims| {
-            let dims = dims.trim().to_lowercase();
-
-            if dims == "scribe2025" {
-                // Kindle Scribe 3, Scribe Colorsoft
-                Some((1980, 2640))
-            } else if dims == "scribe" {
-                // Kindle Scribe, Scribe 2024
-                Some((1860, 2480))
-            } else if dims == "forma" || dims == "sage" {
-                // Kobo Forma, Sage
-                Some((1440, 1920))
-            } else if dims == "auraone" || dims == "ellipsa" {
-                // Kobo Aura One, Ellipsa (all variants)
-                Some((1404, 1872))
-            } else if dims == "libra"
-                || dims == "oasis2018"
-                || dims == "paperwhite2024"
-                || dims == "colorsoft"
-            {
-                // Kobo Libra (all variants)
-                // Kindle Colorsoft (incl. signature ed.), Oasis 2, Oasis 3, Paperwhite 6 (incl. signature ed.)
-                Some((1264, 1680))
-            } else if dims == "paperwhite2021" {
-                // Kindle Paperwhite 5 (incl. signature ed.)
-                Some((1236, 1648))
-            } else if dims == "aurah2o" || dims == "aurahd" {
-                // Kobo Aura H2O, Aura H2O Edition 2, Aura HD
-                Some((1080, 1440))
-            } else if dims == "clara"
-                || dims == "glohd"
-                || dims == "voyage"
-                || dims == "paperwhite2015"
-                || dims == "oasis"
-                || dims == "kindle2022"
-            {
-                // Kobo Clara (all variants), Glo HD
-                // Kindle 11, Kindle 2024, Oasis, Paperwhite 3, Paperwhite 4, Voyage
-                Some((1072, 1448))
-            } else if dims == "kindledx" {
-                // Kindle DX
-                Some((824, 1200))
-            } else if dims == "aura" || dims == "glo" {
-                // Kobo Aura, Aura Edition 2, Glo
-                Some((768, 1024))
-            } else if dims == "nia" || dims == "paperwhite" {
-                // Kobo Nia
-                // Kindle Paperwhite, Paperwhite 2
-                Some((758, 1024))
-            } else if dims == "kobo" || dims == "kindle" {
-                // Kobo Original, Mini, Touch, Touch 2.0, WiFi
-                // Kindle 1, 2, 4, 5, 7, 8, 10, Keyboard, Touch
-                Some((600, 800))
-            } else if dims.is_empty() {
-                None
-            } else {
-                // TODO: Try to parse a WxH dimension
-                let dims_regex = regex::Regex::new(r"^([0-9]+)\s?x\s?([0-9]+)$")
-                    .expect("regex should always be valid");
-                if let Some(caps) = dims_regex.captures(&dims) {
-                    let (_, [width, height]) = caps.extract();
-                    match (width.parse(), height.parse()) {
-                        (Ok(w), Ok(h)) => Some((w, h)),
-                        _ => None,
-                    }
-                } else {
-                    eprintln!(
-                        "WARN: '{}' was not recognized as a valid WxH dimension string or preset",
-                        dims
-                    );
-                    None
-                }
-            }
-        }),
+        dimensions: std::env::var("EREADIFIER_DIMENSIONS")
+            .ok()
+            .and_then(parse_dimensions),
         encode_strategy: std::env::var("EREADIFIER_ENCODE")
             .ok()
-            .and_then(|strat| {
-                let strat = strat.trim().to_lowercase();
-
-                if strat == "smallest" {
-                    Some(EncodeStrategy::Smallest)
-                } else if strat == "lossy" {
-                    Some(EncodeStrategy::Lossy)
-                } else if strat == "lossless" {
-                    Some(EncodeStrategy::Lossless)
-                } else if strat.is_empty() {
-                    None
-                } else {
-                    eprintln!(
-                        "WARN: '{}' was not recognized as a valid encode strategy",
-                        strat
-                    );
-                    None
-                }
-            })
+            .and_then(parse_encode_strategy)
             .unwrap_or(EncodeStrategy::Lossless),
         double_page_strategy: std::env::var("EREADIFIER_DOUBLE_PAGE")
             .ok()
-            .and_then(|strat| {
-                let strat = strat.trim().to_lowercase();
-
-                if strat == "much_wider" {
-                    Some(DoublePageStrategy::IfMuchWider)
-                } else if strat == "wider" {
-                    Some(DoublePageStrategy::IfWider)
-                } else if strat == "ignore" {
-                    Some(DoublePageStrategy::Ignore)
-                } else if strat.is_empty() {
-                    None
-                } else {
-                    eprintln!(
-                        "WARN: '{}' was not recognized as a valid double-page strategy",
-                        strat
-                    );
-                    None
-                }
-            })
+            .and_then(parse_double_page_strategy)
             .unwrap_or(DoublePageStrategy::IfMuchWider),
         lossy_quality: std::env::var("EREADIFIER_LOSSY_QUALITY")
             .ok()
