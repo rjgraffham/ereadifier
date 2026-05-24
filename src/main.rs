@@ -207,8 +207,7 @@ fn log_config(config: &Config) {
         "\tDimensions: {}",
         config
             .dimensions
-            .map(|(w, h)| format!("{} x {}", w, h))
-            .unwrap_or("None (no resize)".into())
+            .map_or("None (no resize)".into(), |(w, h)| format!("{w} x {h}"))
     );
     eprintln!("\tLossy quality target (0~100): {}", config.lossy_quality);
     eprintln!("\tEncoding strategy: {}", config.encode_strategy);
@@ -239,15 +238,9 @@ fn scale_to_fit(
             || (config.double_page_strategy == DoublePageStrategy::IfWider && aspect_ratio > 1.0)
         {
             fit_width *= 2.0;
-            eprintln!(
-                "Fitting {}x{} to {}x{} (double page)",
-                in_width, in_height, fit_width, fit_height
-            );
+            eprintln!("Fitting {in_width}x{in_height} to {fit_width}x{fit_height} (double page)");
         } else {
-            eprintln!(
-                "Fitting {}x{} to {}x{}",
-                in_width, in_height, fit_width, fit_height
-            );
+            eprintln!("Fitting {in_width}x{in_height} to {fit_width}x{fit_height}");
         }
 
         let scale_factor = f32::min(fit_width / in_width, fit_height / in_height);
@@ -267,7 +260,7 @@ fn scale_to_fit(
 
 /// Encode the image to WebP, returning whichever is the smaller of an 85 quality lossy
 /// encode or a lossless encode.
-fn webp_encode(img: image::DynamicImage, config: &Config) -> Option<Vec<u8>> {
+fn webp_encode(img: &image::DynamicImage, config: &Config) -> Option<Vec<u8>> {
     let encoder = webp::Encoder::from_image(&img).ok()?;
 
     Some(Vec::from(&*match config.encode_strategy {
@@ -301,7 +294,7 @@ async fn stop_signal() {
     #[cfg(not(unix))]
     tokio::signal::ctrl_c()
         .await
-        .expect("failed to listen for shutdown signal")
+        .expect("failed to listen for shutdown signal");
 }
 
 async fn handle_errors(err: warp::Rejection) -> Result<impl warp::Reply, std::convert::Infallible> {
@@ -316,7 +309,7 @@ async fn handle_errors(err: warp::Rejection) -> Result<impl warp::Reply, std::co
         message = "Invalid input image";
     } else if let Some(NoInput) = err.find() {
         code = warp::http::StatusCode::BAD_REQUEST;
-        message = "`image` field missing from request"
+        message = "`image` field missing from request";
     } else {
         code = warp::http::StatusCode::INTERNAL_SERVER_ERROR;
         message = "Unknown error";
@@ -354,7 +347,7 @@ async fn main() {
                         && let Ok(img) = img.decode()
                     {
                         return webp_encode(
-                            scale_to_fit(img, image::imageops::FilterType::CatmullRom, config),
+                            &scale_to_fit(img, image::imageops::FilterType::CatmullRom, config),
                             config,
                         )
                         .ok_or(warp::reject::custom(EncodeError));
