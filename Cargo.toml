@@ -1,10 +1,11 @@
 [package]
 name = "ereadifier"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2024"
 
 [dependencies]
 bytes = "1.11"
+chrono = "0.4"
 futures-util = "0.3"
 image = { version = "0.25", default-features = false, features = ["default-formats"] }
 regex = "1.12"

@@ -124,7 +124,7 @@ fn load_config() -> Config {
                         _ => None,
                     }
                 } else {
-                    println!(
+                    eprintln!(
                         "WARN: '{}' was not recognized as a valid WxH dimension string or preset",
                         dims
                     );
@@ -146,7 +146,7 @@ fn load_config() -> Config {
                 } else if strat.is_empty() {
                     None
                 } else {
-                    println!(
+                    eprintln!(
                         "WARN: '{}' was not recognized as a valid encode strategy",
                         strat
                     );
@@ -168,7 +168,7 @@ fn load_config() -> Config {
                 } else if strat.is_empty() {
                     None
                 } else {
-                    println!(
+                    eprintln!(
                         "WARN: '{}' was not recognized as a valid double-page strategy",
                         strat
                     );
@@ -294,14 +294,43 @@ async fn stop_signal() {
         .expect("failed to listen for shutdown signal")
 }
 
+async fn handle_errors(err: warp::Rejection) -> Result<impl warp::Reply, std::convert::Infallible> {
+    let code;
+    let message;
+
+    if let Some(EncodeError) = err.find() {
+        code = warp::http::StatusCode::INTERNAL_SERVER_ERROR;
+        message = "Got valid input, but failed to encode";
+    } else if let Some(DecodeError) = err.find() {
+        code = warp::http::StatusCode::BAD_REQUEST;
+        message = "Invalid input image";
+    } else if let Some(NoInput) = err.find() {
+        code = warp::http::StatusCode::BAD_REQUEST;
+        message = "`image` field missing from request"
+    } else {
+        code = warp::http::StatusCode::INTERNAL_SERVER_ERROR;
+        message = "Unknown error";
+    }
+
+    let timestamp: chrono::DateTime<chrono::Utc> = std::time::SystemTime::now().into();
+    eprintln!(
+        "[{}] Failed request with code {}: {}",
+        timestamp.format("%Y-%m-%dT%H:%M:%S"),
+        code,
+        message
+    );
+
+    Ok::<warp::reply::WithStatus<&str>, _>(warp::reply::with_status(message, code))
+}
+
 #[tokio::main]
 async fn main() {
     let config: &'static Config = Box::leak(Box::new(load_config()));
 
     log_config(config);
 
-    let convert =
-        warp::multipart::form().and_then(move |mut form: warp::multipart::FormData| async move {
+    let convert = warp::multipart::form()
+        .and_then(move |mut form: warp::multipart::FormData| async move {
             while let Some(Ok(mut field)) = form.next().await {
                 if field.name() == "image" {
                     let mut img_bytes: Vec<u8> = Vec::new();
@@ -326,7 +355,8 @@ async fn main() {
             }
 
             Err(warp::reject::custom(NoInput))
-        });
+        })
+        .recover(handle_errors);
 
     warp::serve(convert)
         .bind(config.listen_on)
