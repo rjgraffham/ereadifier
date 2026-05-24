@@ -126,8 +126,7 @@ where
             }
         } else {
             eprintln!(
-                "WARN: '{}' was not recognized as a valid WxH dimension string or preset",
-                dims
+                "WARN: '{dims}' was not recognized as a valid WxH dimension string or preset"
             );
             None
         }
@@ -149,10 +148,7 @@ where
     } else if strat.is_empty() {
         None
     } else {
-        eprintln!(
-            "WARN: '{}' was not recognized as a valid encode strategy",
-            strat
-        );
+        eprintln!("WARN: '{strat}' was not recognized as a valid encode strategy");
         None
     }
 }
@@ -172,10 +168,7 @@ where
     } else if strat.is_empty() {
         None
     } else {
-        eprintln!(
-            "WARN: '{}' was not recognized as a valid double-page strategy",
-            strat
-        );
+        eprintln!("WARN: '{strat}' was not recognized as a valid double-page strategy");
         None
     }
 }
@@ -202,7 +195,7 @@ fn load_config() -> Config {
             .ok()
             .and_then(|addr| addr.parse::<std::net::SocketAddr>().ok())
             .unwrap_or(std::net::SocketAddr::new(
-                std::net::IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0)),
+                std::net::IpAddr::V4(std::net::Ipv4Addr::UNSPECIFIED),
                 80,
             )),
     }
