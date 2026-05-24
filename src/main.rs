@@ -226,11 +226,11 @@ fn scale_to_fit(
     config: &Config,
 ) -> image::DynamicImage {
     if let Some((fit_width, fit_height)) = config.dimensions {
-        let in_width = img.width() as f32;
-        let in_height = img.height() as f32;
+        let in_width = f64::from(img.width());
+        let in_height = f64::from(img.height());
 
-        let mut fit_width = fit_width as f32;
-        let fit_height = fit_height as f32;
+        let mut fit_width = f64::from(fit_width);
+        let fit_height = f64::from(fit_height);
 
         let aspect_ratio = in_width / in_height;
 
@@ -243,13 +243,15 @@ fn scale_to_fit(
             eprintln!("Fitting {in_width}x{in_height} to {fit_width}x{fit_height}");
         }
 
-        let scale_factor = f32::min(fit_width / in_width, fit_height / in_height);
+        let scale_factor = f64::min(fit_width / in_width, fit_height / in_height);
 
         if scale_factor >= 1.0 {
             return img;
         }
 
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
         let out_width = (in_width * scale_factor).ceil() as u32;
+        #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
         let out_height = (in_height * scale_factor).ceil() as u32;
 
         img.resize(out_width, out_height, filter)
@@ -261,7 +263,7 @@ fn scale_to_fit(
 /// Encode the image to WebP, returning whichever is the smaller of an 85 quality lossy
 /// encode or a lossless encode.
 fn webp_encode(img: &image::DynamicImage, config: &Config) -> Option<Vec<u8>> {
-    let encoder = webp::Encoder::from_image(&img).ok()?;
+    let encoder = webp::Encoder::from_image(img).ok()?;
 
     Some(Vec::from(&*match config.encode_strategy {
         EncodeStrategy::Smallest => {
