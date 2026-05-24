@@ -229,6 +229,15 @@ fn scale_to_fit(
             || (config.double_page_strategy == DoublePageStrategy::IfWider && aspect_ratio > 1.0)
         {
             fit_width *= 2.0;
+            eprintln!(
+                "Fitting {}x{} to {}x{} (double page)",
+                in_width, in_height, fit_width, fit_height
+            );
+        } else {
+            eprintln!(
+                "Fitting {}x{} to {}x{}",
+                in_width, in_height, fit_width, fit_height
+            );
         }
 
         let scale_factor = f32::min(fit_width / in_width, fit_height / in_height);
