@@ -7,4 +7,4 @@ RUN cargo build --release
 
 EXPOSE 80
 
-ENTRYPOINT [ "/work/target/release/kobofier" ]
+ENTRYPOINT [ "/work/target/release/ereadifier" ]

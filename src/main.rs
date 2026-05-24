@@ -58,7 +58,7 @@ impl std::fmt::Display for DoublePageStrategy {
 
 fn load_config() -> Config {
     Config {
-        dimensions: std::env::var("KOBOFIER_DIMENSIONS").ok().and_then(|dims| {
+        dimensions: std::env::var("EREADIFIER_DIMENSIONS").ok().and_then(|dims| {
             let dims = dims.trim().to_lowercase();
 
             if dims == "scribe2025" {
@@ -132,7 +132,7 @@ fn load_config() -> Config {
                 }
             }
         }),
-        encode_strategy: std::env::var("KOBOFIER_ENCODE")
+        encode_strategy: std::env::var("EREADIFIER_ENCODE")
             .ok()
             .and_then(|strat| {
                 let strat = strat.trim().to_lowercase();
@@ -154,7 +154,7 @@ fn load_config() -> Config {
                 }
             })
             .unwrap_or(EncodeStrategy::Lossless),
-        double_page_strategy: std::env::var("KOBOFIER_DOUBLE_PAGE")
+        double_page_strategy: std::env::var("EREADIFIER_DOUBLE_PAGE")
             .ok()
             .and_then(|strat| {
                 let strat = strat.trim().to_lowercase();
@@ -176,12 +176,12 @@ fn load_config() -> Config {
                 }
             })
             .unwrap_or(DoublePageStrategy::IfMuchWider),
-        lossy_quality: std::env::var("KOBOFIER_LOSSY_QUALITY")
+        lossy_quality: std::env::var("EREADIFIER_LOSSY_QUALITY")
             .ok()
             .and_then(|q| q.parse::<f32>().ok())
             .unwrap_or(85.0)
             .clamp(0.0, 100.0),
-        listen_on: std::env::var("KOBOFIER_LISTEN")
+        listen_on: std::env::var("EREADIFIER_LISTEN")
             .ok()
             .and_then(|addr| addr.parse::<std::net::SocketAddr>().ok())
             .unwrap_or(std::net::SocketAddr::new(
