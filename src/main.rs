@@ -312,16 +312,16 @@ async fn handle_errors(err: warp::Rejection) -> Result<impl warp::Reply, std::co
 
     if let Some(EncodeError) = err.find() {
         code = warp::http::StatusCode::INTERNAL_SERVER_ERROR;
-        message = "Got valid input, but failed to encode";
+        message = "Got valid input, but failed to encode".into();
     } else if let Some(DecodeError) = err.find() {
         code = warp::http::StatusCode::BAD_REQUEST;
-        message = "Invalid input image";
+        message = "Invalid input image".into();
     } else if let Some(NoInput) = err.find() {
         code = warp::http::StatusCode::BAD_REQUEST;
-        message = "`image` field missing from request";
+        message = "`image` field missing from request".into();
     } else {
         code = warp::http::StatusCode::INTERNAL_SERVER_ERROR;
-        message = "Unknown error";
+        message = format!("Unhandled error: {err:?}");
     }
 
     let timestamp: chrono::DateTime<chrono::Utc> = std::time::SystemTime::now().into();
@@ -334,7 +334,7 @@ async fn handle_errors(err: warp::Rejection) -> Result<impl warp::Reply, std::co
 
     let json = warp::reply::json(&ErrorDetails {
         code: code.as_u16(),
-        message: message.into(),
+        message,
     });
 
     Ok(warp::reply::with_status(json, code))
