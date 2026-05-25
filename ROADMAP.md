@@ -11,3 +11,4 @@ Improvements I want to make, in no particular order:
     - Further to this, implement a proper debug toggle:
         * Make current logging (except the config log) contingent on debug mode instead of printing all the time
         * Save out the input image to a temporary location on error if debug mode enabled, for examination if needed
+    - Revisit areas where errors are currently either printed or suppressed (e.g., into Option), and bubble them up
