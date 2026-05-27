@@ -347,6 +347,7 @@ async fn main() {
     log_config(config);
 
     let convert = warp::multipart::form()
+        .max_length(Some(10 * 1024 * 1024))
         .and_then(move |mut form: warp::multipart::FormData| async move {
             while let Some(Ok(mut field)) = form.next().await {
                 if field.name() == "image" {
