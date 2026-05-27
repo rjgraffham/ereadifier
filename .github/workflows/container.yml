@@ -2,7 +2,12 @@ name: Create and publish a Docker image
 
 on:
   push:
-    tags: [ "*.*", "*.*.*" ]
+    paths:
+      - 'src/**'
+      - '.github/workflows/**'
+      - 'Dockerfile'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
   workflow_dispatch:
 
 jobs:
@@ -21,7 +26,7 @@ jobs:
         type=semver,pattern={{version}}
         type=semver,pattern={{major}}.{{minor}}
         type=semver,pattern={{major}}
-        type=ref,event=branch
+        type=sha
     secrets:
       registry-auths: |
         - registry: ghcr.io
