@@ -20,6 +20,7 @@ jobs:
     with:
       output: image
       push: true
+      sign: false
       platforms: linux/amd64,linux/arm64
       meta-images: ghcr.io/${{ github.repository }}
       meta-tags: |
