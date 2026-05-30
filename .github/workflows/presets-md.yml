@@ -23,6 +23,11 @@ jobs:
         run: |
           python3 ./format_presets.py > PRESETS.md
 
+      - name: Set identification
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
+
       - name: Commit changes
         run: |
           git add PRESETS.md
