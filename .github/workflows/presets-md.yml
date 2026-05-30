@@ -1,0 +1,39 @@
+name: Regenerate PRESETS.md
+
+on:
+  push:
+    paths:
+      - 'presets.toml'
+      - 'format_presets.py'
+      - '.github/workflows/presets-md.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Produce PRESETS.md from presets.toml
+        run: |
+          python3 ./format_presets.py > PRESETS.md
+
+      - name: Commit changes
+        run: |
+          git add PRESETS.md
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "(workflow) Regenerate PRESETS.md"
+
+      - name: Push changes
+        run: |
+          git push

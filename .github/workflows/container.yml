@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'src/**'
-      - '.github/workflows/**'
+      - '.github/workflows/container.yml'
       - 'Dockerfile'
       - 'Cargo.toml'
       - 'Cargo.lock'
