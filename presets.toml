@@ -1,0 +1,187 @@
+[scribe2025]
+width = 1980
+height = 2640
+devices = [
+    "Kindle Scribe Colorsoft (1st Generation)",
+    "Kindle Scribe (3rd Generation)",
+]
+
+[scribe]
+width = 1860
+height = 2480
+devices = [
+    "Kindle Scribe (and 2024 release)",
+]
+
+[forma]
+width = 1440
+height = 1920
+devices = [
+    "Kobo Forma",
+]
+
+[sage]
+width = 1440
+height = 1920
+devices = [
+    "Kobo Sage",
+]
+
+[auraone]
+width = 1404
+height = 1872
+devices = [
+    "Kobo Aura One",
+]
+
+[ellipsa]
+width = 1404
+height = 1872
+devices = [
+    "Kobo Ellipsa (all variants)",
+]
+
+[libra]
+width = 1264
+height = 1680
+devices = [
+    "Kobo Libra (all variants)",
+]
+
+[oasis2018]
+width = 1264
+height = 1680
+devices = [
+    "Kindle Oasis (9th and 10th Generation)",
+]
+
+[paperwhite2024]
+width = 1264
+height = 1680
+devices = [
+    "Kindle Paperwhite (12th Generation, including Signature Edition)",
+]
+
+[colorsoft]
+width = 1264
+height = 1680
+devices = [
+    "Kindle Colorsoft (1st Generation, including Signature Edition)",
+]
+
+[paperwhite2021]
+width = 1236
+height = 1648
+devices = [
+    "Kindle Paperwhite (11th Generation, including Signature Edition)",
+]
+
+[aurah2o]
+width = 1080
+height = 1440
+devices = [
+    "Kobo Aura H2O (and 2nd Edition)",
+]
+
+[aurahd]
+width = 1080
+height = 1440
+devices = [
+    "Kobo Aura HD",
+]
+
+[clara]
+width = 1072
+height = 1448
+devices = [
+    "Kobo Clara (all variants)",
+]
+
+[glohd]
+width = 1072
+height = 1448
+devices = [
+    "Kobo Glo HD",
+]
+
+[voyage]
+width = 1072
+height = 1448
+devices = [
+    "Kindle Voyage (7th Generation)",
+]
+
+[paperwhite2015]
+width = 1072
+height = 1448
+devices = [
+    "Kindle Paperwhite (7th and 10th Generation)",
+]
+
+[oasis]
+width = 1072
+height = 1448
+devices = [
+    "Kindle Oasis (8th Generation)",
+]
+
+[kindle2022]
+width = 1072
+height = 1448
+devices = [
+    "Kindle (11th Generation)",
+]
+
+[kindledx]
+width = 824
+height = 1200
+devices = [
+    "Kindle DX (2nd Generation)",
+]
+
+[aura]
+width = 768
+height = 1024
+devices = [
+    "Kobo Aura (and 2nd Edition)",
+]
+
+[glo]
+width = 768
+height = 1024
+devices = [
+    "Kobo Glo",
+]
+
+[nia]
+width = 758
+height = 1024
+devices = [
+    "Kobo Nia",
+]
+
+[paperwhite]
+width = 758
+height = 1024
+devices = [
+    "Kindle Paperwhite (5th and 6th Generation)",
+]
+
+[kobo]
+width = 600
+height = 800
+devices = [
+    "Kobo Original",
+    "Kobo Mini",
+    "Kobo Touch (and Touch 2.0)",
+    "Kobo WiFi",
+]
+
+[kindle]
+width = 600
+height = 800
+devices = [
+    "Kindle (1st Generation through 10th Generation)",
+    "Kindle Keyboard (3rd Generation)",
+    "Kindle Touch (4th Generation)",
+]
