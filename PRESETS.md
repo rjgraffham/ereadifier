@@ -1,3 +1,8 @@
+<!--
+    Automatically generated from presets.toml by format_presets.py.
+    Do NOT update manually.
+-->
+
 # Device Presets
 
 The following device presets and dimensions are currently
