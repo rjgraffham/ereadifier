@@ -19,6 +19,11 @@ def main():
             presets_by_size[(preset["width"], preset["height"])].append((preset_name, preset["devices"]))
     
         # PRESETS.md header
+        print("<!--")
+        print("    Automatically generated from presets.toml by format_presets.py.")
+        print("    Do NOT update manually.")
+        print("-->")
+        print()
         print("# Device Presets")
         print()
         print("The following device presets and dimensions are currently")
