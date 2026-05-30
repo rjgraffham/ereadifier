@@ -9,7 +9,7 @@ use warp::Filter;
 struct EncodeError(String);
 
 #[derive(Debug)]
-struct DecodeError;
+struct DecodeError(String);
 
 #[derive(Debug)]
 struct NoInput;
@@ -294,9 +294,9 @@ async fn handle_errors(err: warp::Rejection) -> Result<impl warp::Reply, std::co
     if let Some(EncodeError(msg)) = err.find() {
         code = warp::http::StatusCode::INTERNAL_SERVER_ERROR;
         message = format!("Got valid input, but failed to encode: {msg}");
-    } else if let Some(DecodeError) = err.find() {
+    } else if let Some(DecodeError(msg)) = err.find() {
         code = warp::http::StatusCode::BAD_REQUEST;
-        message = "Invalid input image".into();
+        message = format!("Failed to decode: {msg}");
     } else if let Some(NoInput) = err.find() {
         code = warp::http::StatusCode::BAD_REQUEST;
         message = "`image` field missing from request".into();
@@ -338,22 +338,23 @@ async fn main() {
                         img_bytes.put(content);
                     }
 
-                    if let Ok(img) = image::ImageReader::new(std::io::Cursor::new(img_bytes))
+                    return match image::ImageReader::new(std::io::Cursor::new(img_bytes))
                         .with_guessed_format()
-                        && let Ok(img) = img.decode()
                     {
-                        return webp_encode(
-                            &ensure_rgb(&scale_to_fit(
-                                img,
-                                image::imageops::FilterType::CatmullRom,
+                        Ok(img) => match img.decode() {
+                            Ok(img) => webp_encode(
+                                &ensure_rgb(&scale_to_fit(
+                                    img,
+                                    image::imageops::FilterType::CatmullRom,
+                                    config,
+                                )),
                                 config,
-                            )),
-                            config,
-                        )
-                        .map_err(|msg| warp::reject::custom(EncodeError(msg.into())));
-                    }
-
-                    return Err(warp::reject::custom(DecodeError));
+                            )
+                            .map_err(|msg| warp::reject::custom(EncodeError(msg.into()))),
+                            Err(e) => Err(warp::reject::custom(DecodeError(e.to_string()))),
+                        },
+                        Err(e) => Err(warp::reject::custom(DecodeError(e.to_string()))),
+                    };
                 }
             }
 
