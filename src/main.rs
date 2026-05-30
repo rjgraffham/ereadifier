@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use warp::Filter;
 
 #[derive(Debug)]
-struct EncodeError;
+struct EncodeError(String);
 
 #[derive(Debug)]
 struct DecodeError;
@@ -238,12 +238,22 @@ fn scale_to_fit(
     }
 }
 
+/// As the WebP encoder does not support images that are not RGB8 or RGBA8, we convert into
+/// one of those types based on whether the current type has an alpha channel
+fn ensure_rgb(img: &image::DynamicImage) -> image::DynamicImage {
+    if img.has_alpha() {
+        image::DynamicImage::ImageRgba8(img.to_rgba8())
+    } else {
+        image::DynamicImage::ImageRgb8(img.to_rgb8())
+    }
+}
+
 /// Encode the image to WebP, returning whichever is the smaller of an 85 quality lossy
 /// encode or a lossless encode.
-fn webp_encode(img: &image::DynamicImage, config: &Config) -> Option<Vec<u8>> {
-    let encoder = webp::Encoder::from_image(img).ok()?;
+fn webp_encode<'a>(img: &'a image::DynamicImage, config: &Config) -> Result<Vec<u8>, &'a str> {
+    let encoder = webp::Encoder::from_image(img)?;
 
-    Some(Vec::from(&*match config.encode_strategy {
+    Ok(Vec::from(&*match config.encode_strategy {
         EncodeStrategy::Smallest => {
             let lossy_out = encoder.encode(config.lossy_quality);
             let lossless_out = encoder.encode_lossless();
@@ -281,9 +291,9 @@ async fn handle_errors(err: warp::Rejection) -> Result<impl warp::Reply, std::co
     let code;
     let message;
 
-    if let Some(EncodeError) = err.find() {
+    if let Some(EncodeError(msg)) = err.find() {
         code = warp::http::StatusCode::INTERNAL_SERVER_ERROR;
-        message = "Got valid input, but failed to encode".into();
+        message = format!("Got valid input, but failed to encode: {msg}");
     } else if let Some(DecodeError) = err.find() {
         code = warp::http::StatusCode::BAD_REQUEST;
         message = "Invalid input image".into();
@@ -336,7 +346,7 @@ async fn main() {
                             &scale_to_fit(img, image::imageops::FilterType::CatmullRom, config),
                             config,
                         )
-                        .ok_or(warp::reject::custom(EncodeError));
+                        .map_err(|msg| warp::reject::custom(EncodeError(msg.into())));
                     }
 
                     return Err(warp::reject::custom(DecodeError));
