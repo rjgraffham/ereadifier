@@ -343,7 +343,11 @@ async fn main() {
                         && let Ok(img) = img.decode()
                     {
                         return webp_encode(
-                            &scale_to_fit(img, image::imageops::FilterType::CatmullRom, config),
+                            &ensure_rgb(&scale_to_fit(
+                                img,
+                                image::imageops::FilterType::CatmullRom,
+                                config,
+                            )),
                             config,
                         )
                         .map_err(|msg| warp::reject::custom(EncodeError(msg.into())));
