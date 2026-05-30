@@ -7,3 +7,4 @@ Improvements I want to make, in no particular order:
     - Further to this, implement a proper debug toggle:
         * Make current logging (except the config log) contingent on debug mode instead of printing all the time
         * Save out the input image to a temporary location on error if debug mode enabled, for examination if needed
+    - Consider returning the input image on conversion failure, as currently the error outputs are being saved as files despite error codes
