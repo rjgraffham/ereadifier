@@ -326,28 +326,30 @@ async fn handle_convert(
     config: &'static Config,
 ) -> Result<Vec<u8>, warp::Rejection> {
     while let Some(Ok(mut field)) = form.next().await {
-        if field.name() == "image" {
-            let mut img_bytes: Vec<u8> = Vec::new();
-
-            while let Some(Ok(content)) = field.data().await {
-                img_bytes.put(content);
-            }
-
-            let img = image::ImageReader::new(std::io::Cursor::new(img_bytes))
-                .with_guessed_format()
-                .map_err(|e| warp::reject::custom(DecodeError(e.to_string())))?
-                .decode()
-                .map_err(|e| warp::reject::custom(DecodeError(e.to_string())))?;
-
-            let img = ensure_rgb(&scale_to_fit(
-                img,
-                image::imageops::FilterType::CatmullRom,
-                config,
-            ));
-
-            return webp_encode(&img, config)
-                .map_err(|msg| warp::reject::custom(EncodeError(msg.into())));
+        if field.name() != "image" {
+            continue;
         }
+
+        let mut img_bytes: Vec<u8> = Vec::new();
+
+        while let Some(Ok(content)) = field.data().await {
+            img_bytes.put(content);
+        }
+
+        let img = image::ImageReader::new(std::io::Cursor::new(img_bytes))
+            .with_guessed_format()
+            .map_err(|e| warp::reject::custom(DecodeError(e.to_string())))?
+            .decode()
+            .map_err(|e| warp::reject::custom(DecodeError(e.to_string())))?;
+
+        let img = ensure_rgb(&scale_to_fit(
+            img,
+            image::imageops::FilterType::CatmullRom,
+            config,
+        ));
+
+        return webp_encode(&img, config)
+            .map_err(|msg| warp::reject::custom(EncodeError(msg.into())));
     }
 
     Err(warp::reject::custom(NoInput))
