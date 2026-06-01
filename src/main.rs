@@ -219,8 +219,12 @@ fn scale_to_fit(
             || (config.double_page_strategy == DoublePageStrategy::IfWider && aspect_ratio > 1.0)
         {
             fit_width *= 2.0;
-            eprintln!("Fitting {in_width}x{in_height} to {fit_width}x{fit_height} (double page)");
-        } else {
+            if config.debug_mode {
+                eprintln!(
+                    "Fitting {in_width}x{in_height} to {fit_width}x{fit_height} (double page)"
+                );
+            }
+        } else if config.debug_mode {
             eprintln!("Fitting {in_width}x{in_height} to {fit_width}x{fit_height}");
         }
 
