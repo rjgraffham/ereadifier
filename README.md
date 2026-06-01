@@ -105,11 +105,26 @@ services:
       EREADIFIER_DIMENSIONS: clara
       EREADIFIER_ENCODE: smallest
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "/ereadifier_healthcheck"]
-      interval: 60s
-      timeout: 30s
-      retries: 3
+```
+
+### Example: running with a Podman quadlet
+
+```ini
+[Unit]
+Description=Ereadifier postprocessing server
+
+[Install]
+WantedBy=default.target
+
+[Service]
+Restart=always
+
+[Container]
+ContainerName=ereadifier
+Image=ghcr.io/rjgraffham/ereadifier:latest
+Environment=EREADIFIER_DIMENSIONS=clara
+Environment=EREADIFIER_ENCODE=smallest
+PublishPort=8080:80
 ```
 
 ## Why WebP?
