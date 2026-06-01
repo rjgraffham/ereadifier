@@ -2,8 +2,8 @@ name: Regenerate PRESETS.md
 
 on:
   push:
-    tags-ignore:
-      - "**"  # prevent running on tag pushes, as it seems github actions ignores filtered paths for those pushes
+    branches:
+      - "**"  # explicitly only run on branch pushes (not tags), as tag pushes do not use the path filters
     paths:
       - 'presets.toml'
       - 'format_presets.py'
