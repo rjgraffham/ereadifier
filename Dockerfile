@@ -14,5 +14,6 @@ LABEL org.opencontainers.image.licenses=MIT
 EXPOSE 80
 
 COPY --from=build /work/target/release/ereadifier /ereadifier
+COPY --from=build /work/target/release/ereadifier_healthcheck /ereadifier_healthcheck
 
 ENTRYPOINT [ "/ereadifier" ]

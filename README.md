@@ -101,6 +101,11 @@ services:
       EREADIFIER_DIMENSIONS: clara
       EREADIFIER_ENCODE: smallest
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/ereadifier_healthcheck"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
 ```
 
 ## Why WebP?
