@@ -30,6 +30,7 @@ struct Config {
     encode_strategy: EncodeStrategy,
     double_page_strategy: DoublePageStrategy,
     listen_on: std::net::SocketAddr,
+    debug_mode: bool,
 }
 
 enum EncodeStrategy {
@@ -176,6 +177,8 @@ fn load_config() -> Config {
                 std::net::IpAddr::V4(std::net::Ipv4Addr::UNSPECIFIED),
                 80,
             )),
+        debug_mode: std::env::var("EREADIFIER_DEBUG")
+            .is_ok_and(|d| matches!(d.trim().to_lowercase().as_str(), "true" | "yes" | "1")),
     }
 }
 
