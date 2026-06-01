@@ -57,6 +57,10 @@ configuration options are available:
       Address *must* be a valid IPv4 or IPv6 address (not a
       hostname), and IPv6 addresses *must* be wrapped in `[`
       and `]`. Default is `0.0.0.0:80`.
+* `EREADIFIER_DEBUG`
+    * `yes`, `true`, or `1` (case insensitive) - Print debug
+      information while processing images.
+    * Any other value - Do not print debug information.
 
 ## Usage
 
