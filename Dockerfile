@@ -1,4 +1,4 @@
-FROM docker.io/library/rust:1.99-alpine AS build
+FROM docker.io/library/rust:1.100-alpine AS build
 
 COPY . /work
 
